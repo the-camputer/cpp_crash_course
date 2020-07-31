@@ -40,20 +40,17 @@ T mode(const T* values, size_t length) {
     int highest_count = 0;
     std::set<T> highest_count_entries;
 
-    typename std::map<T, int>::iterator iter = val_occurance_counts.begin();
-    while (iter != val_occurance_counts.end()) {
+    typename std::map<T, int>::iterator iter;
+    for (iter = val_occurance_counts.begin(); iter != val_occurance_counts.end(); iter++) {
         if (iter->second >= highest_count) {
             highest_count = iter->second;
         }
-        iter++;
     }
 
-    iter = val_occurance_counts.begin();
-    while(iter != val_occurance_counts.end()) {
+    for (iter = val_occurance_counts.begin(); iter != val_occurance_counts.end(); iter++) {
         if (iter->second == highest_count) {
             highest_count_entries.insert(iter->first);
         }
-        iter++;
     }
 
     if (highest_count_entries.size() > 1) {
@@ -144,9 +141,9 @@ int main() {
     consumer(std::move(ptr_a));
     printf("(main) ptr_a: 0x%p\n", ptr_a.get()); // ptr_a now in a moved-from state, inner Tracer moved from ptr_a to consumer
 
-    int counts_too_many[] = {12, 24, 24, 54, 1, 3, 7, 7, 9, 9};
+    double counts_too_many[] = {12, 24, 24, 54, 1, 3, 7, 7, 9, 9};
     mode(counts_too_many, 8);
-    int counts_none[] = {};
+    float counts_none[] = {};
     mode(counts_none, 0);
     int counts_good[] = {1, 1, 1, 2, 2, 3, 4, 5, 6, 6, 6, 6};
     auto m_mode = mode(counts_good, 12);
