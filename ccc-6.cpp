@@ -19,16 +19,17 @@ T mean(T* values, size_t length) {
     return result / length;
 }
 
-int mode(const int* values, size_t length) {
+template<typename T>
+T mode(const T* values, size_t length) {
     if (length <= 0) {
         printf("NO VALUES GIVEN\n");
         return 0;
     }
 
-    std::map<int, int> val_occurance_counts;
+    std::map<T, int> val_occurance_counts;
 
     for(size_t i = 0; i < length; i++) {
-        int val = values[i];
+        T val = values[i];
         if (val_occurance_counts.find(val) != val_occurance_counts.end()) {
             val_occurance_counts[val] += 1;
         } else {
@@ -37,9 +38,9 @@ int mode(const int* values, size_t length) {
     }
 
     int highest_count = 0;
-    std::set<int> highest_count_entries;
+    std::set<T> highest_count_entries;
 
-    std::map<int, int>::iterator iter = val_occurance_counts.begin();
+    typename std::map<T, int>::iterator iter = val_occurance_counts.begin();
     while (iter != val_occurance_counts.end()) {
         if (iter->second >= highest_count) {
             highest_count = iter->second;
@@ -148,9 +149,7 @@ int main() {
     int counts_none[] = {};
     mode(counts_none, 0);
     int counts_good[] = {1, 1, 1, 2, 2, 3, 4, 5, 6, 6, 6, 6};
-    int m_mode = mode(counts_good, 12);
+    auto m_mode = mode(counts_good, 12);
     printf("MODE! %d\n", m_mode);
     return 0;
-
-    // TODO: HEY PUT THIS IN GITHUB
 }
