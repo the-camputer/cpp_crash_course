@@ -4,6 +4,8 @@ enum class Operation {
     ADD, SUBSTRACT, MULTIPLY, DIVIDE
 };
 
+
+// Struct: A class where everything is public by default
 struct Calculator {
 
     Calculator() {
@@ -48,12 +50,14 @@ struct Calculator {
         Operation op;
 };
 
+// Class: A struct where everthing is private by default
 class Earth {
     public:
         Earth() {
             printf("Creating the greatest computer in existence...\n");
         }
 
+        // Example Destructor
         ~Earth() {
             printf("Bye, and thanks for all the fish.\n");
         }

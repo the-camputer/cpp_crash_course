@@ -88,6 +88,7 @@ struct Element {
     }
 
     void insert_after(Element* next_element) {
+        // Arrow operator: Used to access members of struct/class pointers
         next_element->next = next;
         next_element-> previous = this;
         next = next_element;

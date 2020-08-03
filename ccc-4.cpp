@@ -25,6 +25,10 @@
     In order to avoid headaches caused by the compiler automatically generating these methods
     on your behalf, you should explicitly define these yourself. A little time up front to 
     save a lot of headaches later on.
+
+    Resource Acqusition is Initialization (RAII): aka Scope-Bound Resource Management, the concept that
+    the lifetime of an object is bound to the scope of a variable, i.e. what is created must be destroyed.
+    Destructors that explicitly delete heap resources are a means of enforcing this.
 */
 struct SimpleString {
     SimpleString(size_t max_size) 
