@@ -2,12 +2,23 @@
 #include <utility>
 #include <map>
 #include <set>
+#include <type_traits>
 
 #ifdef _WIN32
 #include <Windows.h>
 #else
 #include <unistd.h>
 #endif
+
+/*
+    Templates: Compile-time polymorphism, i.e. generic programming, follows DRY principle by allowing
+    one function to be created that can work on a multitude of types.
+
+    Concept: A form of template that allows for constraining the types allowed to be passed into the templated object
+    by means of asserting various predicates about the nature of acceptable argument types.
+*/
+template<typename T>
+concept Integer = std::is_integral<T>::value;
 
 template<typename T>
 T mean(T* values, size_t length) {
@@ -19,7 +30,7 @@ T mean(T* values, size_t length) {
     return result / length;
 }
 
-template<typename T>
+template<Integer T>
 T mode(const T* values, size_t length) {
     if (length <= 0) {
         printf("NO VALUES GIVEN\n");
@@ -141,9 +152,9 @@ int main() {
     consumer(std::move(ptr_a));
     printf("(main) ptr_a: 0x%p\n", ptr_a.get()); // ptr_a now in a moved-from state, inner Tracer moved from ptr_a to consumer
 
-    double counts_too_many[] = {12, 24, 24, 54, 1, 3, 7, 7, 9, 9};
+    long counts_too_many[] = {12, 24, 24, 54, 1, 3, 7, 7, 9, 9};
     mode(counts_too_many, 8);
-    float counts_none[] = {};
+    int counts_none[] = {};
     mode(counts_none, 0);
     int counts_good[] = {1, 1, 1, 2, 2, 3, 4, 5, 6, 6, 6, 6};
     auto m_mode = mode(counts_good, 12);
