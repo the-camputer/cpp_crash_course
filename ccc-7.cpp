@@ -89,12 +89,30 @@ void operator delete(void* p) {
     return heap.free(p);
 }
 
+
+/*
+    User-defined type Conversions:
+    C++ provides the ability for user-defined types to also include user-defined conversion functions
+*/
+struct ReadOnlyInt {
+    ReadOnlyInt(int val) : value { val } {}
+
+    // overloads explicit conversion operation. Leaving off the 'explicit' allows for implicit conversions.
+    explicit operator int() const {
+        printf("EXPLICIT CONVERTIN!\n");
+        return value;
+    }
+
+    private:
+    const int value;
+};
+
 /*
     Precedence and Evaluation Order:
     Precendence order is about compile-time associativity and defining which operators bind to which operands
     e.g. *a++ - since postfix incrementation is higher precendence order than dereferencing, a is bound 
     to the postfix incrementation and the result is then bound to the dereference: *(a++)
-    
+
     Evaluation order deals with in what order should expressions be evaluated
     e.g. stop() + drop() + roll(), C++ does not enfore evaluation order, therefore there is no guarantee 
     that these are called in left-to-right order.
@@ -128,4 +146,9 @@ int main() {
     } catch(const std::bad_alloc&) {
         printf("std::bad_alloc caught\n");
     }
+
+    // Using User-defined conversion
+    ReadOnlyInt ro_int { 42 };
+    // auto more_stuff = ro_int * 10; HEY! This won't work because there's no implicit conversion defined for ReadOnlyInt
+    auto even_more_stuff = static_cast<int>(ro_int) * 12; // Notice explicit conversion is used here.
 }
