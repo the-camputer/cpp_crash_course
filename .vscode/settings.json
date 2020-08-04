@@ -40,6 +40,8 @@
         "new": "cpp",
         "sstream": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "map": "cpp",
+        "set": "cpp"
     }
 }
