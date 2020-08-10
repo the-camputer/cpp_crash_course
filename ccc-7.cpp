@@ -4,12 +4,10 @@
 #include <new>
 #include <cstddef>
 
-
 /*
     Operator Overloading: process of defining custom behavior for operators.
     Typically used on user-defined classes.
 */
-
 struct CheckedInteger {
 
     const unsigned int value; // const means that CheckedInteger is immutable. This prevents changes during + operator
@@ -151,4 +149,6 @@ int main() {
     ReadOnlyInt ro_int { 42 };
     // auto more_stuff = ro_int * 10; HEY! This won't work because there's no implicit conversion defined for ReadOnlyInt
     auto even_more_stuff = static_cast<int>(ro_int) * 12; // Notice explicit conversion is used here.
+
+    return 0;
 }
