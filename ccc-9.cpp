@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <cstdarg>
+#include <functional>
 
 /*
     function prefix modifiers:
@@ -93,6 +94,52 @@ struct BostonCorbettJunior : BostonCorbett {
   //void shoot() override { } // Bang! shoot is final.
 };
 
+float add(float a, int b) {
+    return a + b;
+}
+
+// first parameter is a function pointer
+float invert(float(*func)(float, int), float a, int b) {
+    return -1 * func(a, b);
+}
+
+// Function Call Operator: You can make user-defined types callable by overriding the function-call operator 'operator()()'
+struct CountIf {
+    CountIf(char x): x { x } {}
+
+    size_t operator() (const char* str) const {
+        size_t index {};
+        size_t result {};
+        while(str[index]) {
+            if (str[index] == x) {
+                result ++;
+            }
+            index++;
+        }
+
+        return result;
+    }
+
+    private:
+    char x;
+};
+
+template<typename Fn>
+void transform(Fn fn, int* in, int* out, size_t length) {
+    for (size_t i {}; i < length; i++) {
+        out[i] = fn(in[i]);
+    }
+}
+
+void f() { printf("WOW A FUNCTION!\n"); }
+
+// std::function - stdlib wrapper around functions to convert them to function objects
+// std::function<return-type(arg-type-1, arg-type-2, ...)>
+void call(std::function<void()> func) {
+    printf("WOW CALLING A FUNCTION!\n");
+    func();
+}
+
 int main() {
     BostonCorbettJunior junior;
 
@@ -101,4 +148,35 @@ int main() {
 
     printf("The answer is %d\n", sum(2, 4, 6, 8, 10, 12));
     printf("Another answer is %d\n", sum2(1, 5, 6, 8, 10, 12));
+
+    // function pointers: allows the assignment of a function to a variable for usage in functional programming
+    float(*operation) (float, int) {};
+    operation = &add;
+    float first { 10 };
+    int second { 20 };
+    printf("%g + %d = %g\n", first, second, operation(first, second));
+    printf("-1 * (%g + %d) = %g\n", first, second, invert(operation, first, second));
+
+    CountIf s_counter{'s'};
+    auto sally = s_counter("Sally sells seashells by the seashore."); // Notice! CountIf is a struct, but we can call it like a function
+    printf("Sally: %zd\n", sally);
+    
+    // Lambda Functions: A means of creating function objects succinctly
+    // [captures](parameters) modifiers -> return-type { body }
+    // 1. Captures: member variables of the function. Like variable injection.
+    // 2. Parameters: arguments required to invoke. can have default arguments. Use 'auto' type to create generic lambda
+    // 3. Modifiers: elements like constexpr, noexcept, [[noreturn]]
+    // 4. return-type: what type to return. Compiler can in a lot of cases figure it out without you specifying
+    // 5. body: the actualy body of the function
+    const size_t length { 3 };
+    int base[] { 1, 2, 3 }, a[length], b[length], c[length];
+    auto wild_ride = [](auto x) constexpr -> decltype(x) { return 10*x+5; };
+    transform(std::function<int(int)> {[](int x) constexpr -> int { return 1; }}, base, a, length);
+    transform([length](int x) constexpr { return x + (length + 1); }, base, b, length);
+    transform(wild_ride, base, c, length);
+    for(size_t i {}; i < length; i++) {
+        printf("Element %d: %d %d %d\n", base[i], a[i], b[i], c[i]);
+    }
+
+    call(f); // passing a function as a parameter using the std::function wrapper
 }
