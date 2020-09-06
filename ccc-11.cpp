@@ -3,7 +3,7 @@
  *  lifetime will be at least as long as the object it is pointing to.
  *  Ownership models:
  *   1. Scoped: Non-transferable (cannot change scope), exclusive ownership (cannot be copied) of a single dynamic object.
- *   2. Unique: 
+ *   2. Unique: Transferable, exclusive ownership of a single dynamic object
  *   3. Shared
  *   4. Weak
  *   5. Intrusive
@@ -12,10 +12,8 @@
 #include "catch.hpp"
 #include <boost/smart_ptr/scoped_ptr.hpp>
 #include <boost/smart_ptr/scoped_array.hpp>
+#include <memory>
 
-/*
- * BOOST SCOPED POINTERS
-*/
 struct DeadMenOfDunharrow {
     DeadMenOfDunharrow(const char* m="")
         : message { m } {
@@ -30,8 +28,12 @@ struct DeadMenOfDunharrow {
     static int oaths_to_fufill;
 };
 int DeadMenOfDunharrow::oaths_to_fufill{};
-using ScopedOathBreakers = boost::scoped_ptr<DeadMenOfDunharrow>;
 
+
+/*
+ * BOOST SCOPED POINTERS
+*/
+using ScopedOathBreakers = boost::scoped_ptr<DeadMenOfDunharrow>;
 TEST_CASE("SCOPED POINTERS: ") {
     SECTION("ScopedPtr evaluates to") {
         SECTION("true when full") {
@@ -112,3 +114,23 @@ TEST_CASE("SCOPED POINTERS: ") {
 }
 
 
+/*
+ * UNIQUE POINTERS
+*/
+using UniqueOathBreakers = std::unique_ptr<DeadMenOfDunharrow>;
+TEST_CASE("UNIQUE POINTERS: ") {
+    SECTION("UniquePtr's can be used in move") {
+        auto aragorn = std::make_unique<DeadMenOfDunharrow>();
+        SECTION("construction") {
+            auto son_of_arathorn { std::move(aragorn) };
+            REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 1); // aragorn obj moved to son_of_arathorn
+        }
+
+        SECTION("assignment") {
+            auto son_of_arathorn = std::make_unique<DeadMenOfDunharrow>(); // create new "son of arathorn" separate from aragorn
+            REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 2);
+            son_of_arathorn = std::move(aragorn); // move aragorn to son_of_arathorn, thus removing whatever assignment was originally there
+            REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 1);
+        }
+    }
+}
