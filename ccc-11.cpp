@@ -11,7 +11,11 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include <boost/smart_ptr/scoped_ptr.hpp>
+#include <boost/smart_ptr/scoped_array.hpp>
 
+/*
+ * BOOST SCOPED POINTERS
+*/
 struct DeadMenOfDunharrow {
     DeadMenOfDunharrow(const char* m="")
         : message { m } {
@@ -95,4 +99,16 @@ TEST_CASE("SCOPED POINTERS: ") {
         REQUIRE(aragorn->message == message2);
         REQUIRE(legolas->message == message1);
     }
+
+    SECTION("ScopedArray supports operator[]") {
+        boost::scoped_array<int> squares {
+            new int[5] { 0, 4, 9, 16 ,25 }
+        };
+        squares[0] = 1;
+        REQUIRE(squares[0] == 1);
+        REQUIRE(squares[1] == 4);
+        REQUIRE(squares[2] == 9);
+    }
 }
+
+
