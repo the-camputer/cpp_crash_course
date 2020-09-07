@@ -4,7 +4,7 @@
  *  Ownership models:
  *   1. Scoped: Non-transferable (cannot change scope), exclusive ownership (cannot be copied) of a single dynamic object.
  *   2. Unique: Transferable, exclusive ownership of a single dynamic object
- *   3. Shared
+ *   3. Shared: Transferable, non-exclusive (more than one owner possible) ownership over a single dynamic object
  *   4. Weak
  *   5. Intrusive
 */
@@ -116,6 +116,7 @@ TEST_CASE("SCOPED POINTERS: ") {
 
 /*
  * UNIQUE POINTERS
+ * note: use std::make_unique instead of new
 */
 using UniqueOathBreakers = std::unique_ptr<DeadMenOfDunharrow>;
 TEST_CASE("UNIQUE POINTERS: ") {
@@ -130,6 +131,67 @@ TEST_CASE("UNIQUE POINTERS: ") {
             auto son_of_arathorn = std::make_unique<DeadMenOfDunharrow>(); // create new "son of arathorn" separate from aragorn
             REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 2);
             son_of_arathorn = std::move(aragorn); // move aragorn to son_of_arathorn, thus removing whatever assignment was originally there
+            REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 1);
+        }
+    }
+
+    SECTION("UniquePtr to array supports operator[]") {
+        /*
+         * NOTE! Don't initialize unique_ptr<T> with dynamic array T[] a la the following
+         * std::unique_ptr<int> dont_do_this { new int[5] {0, 0, 0, 0, 0} }
+        */
+        std::unique_ptr<int[]> squares {
+            new int[5] { 0, 4 ,9, 16, 25 }
+        };
+
+        squares[0] = 1;
+        REQUIRE(squares[0] == 1);
+        REQUIRE(squares[1] == 4);
+        REQUIRE(squares[2] == 9);
+    }
+
+    /*
+     * Note: Custom deleters are needed when regular delete won't release necessary resources, 
+     * e.g. low level file system operations
+    */
+    SECTION("UniquePtr supports using custom deleters") {
+        auto deleted_via_custom = false;
+
+        auto custom_deleter = [&deleted_via_custom](int* x) {
+            deleted_via_custom = true;
+            delete x;
+        };
+
+        std::unique_ptr<int, decltype(custom_deleter)> kill_int { new int{5}, custom_deleter };
+
+        kill_int.reset();
+
+        REQUIRE(deleted_via_custom);
+    }
+}
+
+/*
+    SHARED POINTERS
+    note: use std::make_shared instead of new
+    note: supports shared_array and deleters
+*/
+using SharedOathBreakser = std::shared_ptr<DeadMenOfDunharrow>;
+TEST_CASE("SHARED POINTERS: ") {
+    SECTION("SharedPtr can be used in copy") {
+        auto aragorn = std::make_shared<DeadMenOfDunharrow>();
+        SECTION("construction") {
+            auto son_of_arathorn { aragorn };
+            REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 1);
+        }
+        SECTION("assignment") {
+            SharedOathBreakser son_of_arathorn;
+            son_of_arathorn = aragorn;
+            REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 1);
+        }
+        SECTION("assignment, and original gets discarded") {
+            auto son_of_arathorn = std::make_shared<DeadMenOfDunharrow>();
+            REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 2);
+            son_of_arathorn = aragorn;
             REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 1);
         }
     }
