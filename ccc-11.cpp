@@ -5,7 +5,7 @@
  *   1. Scoped: Non-transferable (cannot change scope), exclusive ownership (cannot be copied) of a single dynamic object.
  *   2. Unique: Transferable, exclusive ownership of a single dynamic object
  *   3. Shared: Transferable, non-exclusive (more than one owner possible) ownership over a single dynamic object
- *   4. Weak
+ *   4. Weak: Tracks object and can be converted to shared pointer if object still exists. Typically used in caches
  *   5. Intrusive
 */
 #define CATCH_CONFIG_MAIN
@@ -193,6 +193,40 @@ TEST_CASE("SHARED POINTERS: ") {
             REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 2);
             son_of_arathorn = aragorn;
             REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 1);
+        }
+    }
+}
+
+/*
+    WEAK POINTERS
+    note: constructed using a shared pointer or another weak pointer
+*/
+TEST_CASE("WEAK POINTERS: ") {
+    SECTION("WeakPtr lock() yields") {
+        auto message = "The way is shut.";
+        SECTION("a shared pointer when tracked object is alive") {
+            auto aragorn = std::make_shared<DeadMenOfDunharrow>(message);
+            REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 1);
+
+            std::weak_ptr<DeadMenOfDunharrow> legolas { aragorn };
+            auto sh_ptr = legolas.lock();
+
+            REQUIRE(sh_ptr->message == message);
+            REQUIRE(DeadMenOfDunharrow::oaths_to_fufill == 2);
+        }
+
+        SECTION("empty when shared pointer is empty") {
+            std::weak_ptr<DeadMenOfDunharrow> legolas;
+            
+            // block scope will cause aragorn to fall out of scope and dies
+            {
+                auto aragorn = std::make_shared<DeadMenOfDunharrow>(message);
+                legolas = aragorn;
+            }
+
+            auto shared_ptr = legolas.lock();
+
+            REQUIRE(shared_ptr == nullptr);
         }
     }
 }
