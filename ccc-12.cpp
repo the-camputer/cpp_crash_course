@@ -68,3 +68,15 @@ TEST_CASE("std::pair permits access to members") {
     REQUIRE(immutable_couple.first.birthname == Valentino.birthname);
     REQUIRE(immutable_couple.second.surname == Jimmy.surname);
 }
+
+/*
+    Tuple: Generalization of Pair to include an arbitrary number of elements
+*/
+struct Acquaintance { const char* nickname; };
+Acquaintance Reginald { "Regi" };
+TEST_CASE("std::tuple permists access to members with get()") {
+    using Trio = std::tuple<Socialite, Valet, Acquaintance>;
+    Trio three_musketeers { Valentino, Jimmy, Reginald };
+    auto& regi_ref = std::get<2>(three_musketeers);
+    REQUIRE(regi_ref.nickname == Reginald.nickname);
+}
