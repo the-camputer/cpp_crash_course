@@ -79,4 +79,8 @@ TEST_CASE("std::tuple permists access to members with get()") {
     Trio three_musketeers { Valentino, Jimmy, Reginald };
     auto& regi_ref = std::get<2>(three_musketeers);
     REQUIRE(regi_ref.nickname == Reginald.nickname);
+
+    // can use type if all types in tuple are different
+    auto& jimmy_ref = std::get<Valet>(three_musketeers);
+    REQUIRE(jimmy_ref.surname == Jimmy.surname);
 }
