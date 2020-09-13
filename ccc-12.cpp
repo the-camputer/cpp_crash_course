@@ -57,5 +57,14 @@ TEST_CASE("std::optional can be empty") {
 }
 
 /*
-    Pair: 
+    Pair: Template that contains two objects of potentially differing types within the same type
 */
+struct Socialite { const char* birthname; };
+struct Valet { const char* surname; };
+Socialite Valentino { "Scaramucci" };
+Valet Jimmy { "Johnson" };
+TEST_CASE("std::pair permits access to members") {
+    std::pair<Socialite, Valet> immutable_couple { Valentino, Jimmy };
+    REQUIRE(immutable_couple.first.birthname == Valentino.birthname);
+    REQUIRE(immutable_couple.second.surname == Jimmy.surname);
+}
