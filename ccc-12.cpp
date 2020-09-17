@@ -6,6 +6,8 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <chrono>
 #include <thread>
+#include <cmath>
+#include <boost/math/constants/constants.hpp>
 
 /*
     tribool: can be either true, false, or indeterminate. Good for checking intermediate state of system.
@@ -178,4 +180,17 @@ TEST_CASE("stdlib chrono librarby") {
 
         REQUIRE(end - start >= 100ms);
     }
+}
+
+/*
+    Math: <cmath> header contains just a metric crap ton of useful methematical functions.
+    In addition, Boost has a mathematical constants sections that makes some code easier to read
+*/
+
+TEST_CASE("Evaluation of cmath and Boost mathematical constants") {
+    using namespace boost::math::double_constants;
+
+    auto sphere_volume = four_thirds_pi * std::pow(10, 3);
+
+    REQUIRE(sphere_volume == Approx(4188.7902047)); //Approx is a catch function 
 }
