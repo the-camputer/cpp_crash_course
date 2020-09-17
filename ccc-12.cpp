@@ -8,6 +8,7 @@
 #include <thread>
 #include <cmath>
 #include <boost/math/constants/constants.hpp>
+#include <random>
 
 /*
     tribool: can be either true, false, or indeterminate. Good for checking intermediate state of system.
@@ -193,4 +194,25 @@ TEST_CASE("Evaluation of cmath and Boost mathematical constants") {
     auto sphere_volume = four_thirds_pi * std::pow(10, 3);
 
     REQUIRE(sphere_volume == Approx(4188.7902047)); //Approx is a catch function 
+}
+
+/*
+    Random Numbers: Boost and stdlib provide a variety of random number generaters based on needs
+        - pseudorandom: provides a reproducable series of seemingly random numbers based on a seed
+        - cryptographically random: closer to true random number generation
+*/
+TEST_CASE("Random Number Generation Engines") {
+    SECTION("mt19937_64 is psedorandom") {
+        std::mt19937_64 mt_engine { 91586 };
+
+        REQUIRE(mt_engine() == 8346843996631475880);
+        REQUIRE(mt_engine() == 2237671392849523263);
+        REQUIRE(mt_engine() == 7333164488732543658);
+    }
+
+    SECTION("std::random_device is invocable") {
+        std::random_device rd_engine{};
+
+        REQUIRE_NOTHROW(rd_engine());
+    }
 }
