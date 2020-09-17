@@ -3,6 +3,9 @@
 #include <boost/logic/tribool.hpp>
 #include <optional>
 #include <utility>
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <chrono>
+#include <thread>
 
 /*
     tribool: can be either true, false, or indeterminate. Good for checking intermediate state of system.
@@ -83,4 +86,96 @@ TEST_CASE("std::tuple permists access to members with get()") {
     // can use type if all types in tuple are different
     auto& jimmy_ref = std::get<Valet>(three_musketeers);
     REQUIRE(jimmy_ref.surname == Jimmy.surname);
+}
+
+/*
+    Dates and Times:
+        - Boost has a date type that is based on the Gregorian Calendar
+        - Boost has a posix_time section that handles clocks with microsecond resolution
+        - Boost has a time_zone_base section that time zone aware time programming
+        - Stdlib's Chrono library offers utilities useful for time or timing-dependant code
+*/
+TEST_CASE("boost::gregorian::date") {
+    using boost::gregorian::date;
+    SECTION("Invalid dates throw exceptions") {
+        using boost::gregorian::bad_day_of_month;
+
+        REQUIRE_THROWS_AS(date(1986, 9, 32), bad_day_of_month);
+    }
+
+    // NOTE!! This requires you to link boost_date_time in your compilation to work.
+    // SECTION("boost dates can be created from numbers or strings using from_string") {
+    //     date d_from_numbers { 1990, 9, 15 };
+    //     auto d_from_string = boost::gregorian::from_string("1990-09-15");
+
+    //     REQUIRE(d_from_numbers == d_from_numbers);
+    // }
+
+    SECTION("boost date supports basic calendar functions") {
+        date d{ 1986, 9, 15 };
+
+        REQUIRE(d.year() == 1986);
+        REQUIRE(d.month() == 9);
+        REQUIRE(d.day() == 15);
+        REQUIRE(d.day_of_year() == 258);
+        REQUIRE(d.day_of_week() == boost::date_time::Monday);
+    }
+
+    SECTION("boost date supports calendar arithmetic") {
+        date d1{ 1986, 9, 15 };
+        date d2{ 2019, 8, 1 };
+        auto duration = d2 - d1;
+
+        REQUIRE(duration.days() == 12008);
+    }
+}
+
+TEST_CASE("stdlib chrono librarby") {
+    SECTION("std::chrono supports several clocks") {
+        /*
+            Types of Chrono clicks:
+                - System clock: the standard, system-wide real-time clock
+                - High Resolution clock: clock with the shortest tick
+                - Steady clock: gauranteed not to go backwardwards somehow.
+            
+            Time Point: an encapsulated representation of a moment in time. Defines the amount of time that has
+            passed since the beginning of the clock's epock (01/01/1970 for POSIX, 01/01/1601 for Windows)
+            using its time_since_epoch() method, which returns a Duration between the given time and the epoch start
+
+            Duration: represents the time between two time_point objects. Exposes a count() method which returns
+            the number of ticks between the two points.
+        */
+        auto sys_now = std::chrono::system_clock::now();
+        auto hi_res_now = std::chrono::high_resolution_clock::now();
+        auto steady_now = std::chrono::steady_clock::now();
+
+        REQUIRE(sys_now.time_since_epoch().count() > 0);
+        REQUIRE(hi_res_now.time_since_epoch().count() > 0);
+        REQUIRE(steady_now.time_since_epoch().count() > 0);
+    }
+
+    SECTION("std::chrono also provides literals for easier readability") {
+        using namespace std::literals::chrono_literals;
+        auto one_s = std::chrono::seconds(1);
+        auto thousand_ms = 1000ms;
+
+        REQUIRE(one_s == thousand_ms);
+    }
+
+    SECTION("std::chrono supports duration casting") {
+        using namespace std::chrono;
+        auto billion_ns_as_s = duration_cast<seconds>(1'000'000'000ns);
+
+        REQUIRE(billion_ns_as_s.count() == 1);
+    }
+
+    SECTION("std::chrono can be used to sleep threads") {
+        using namespace std::literals::chrono_literals;
+
+        auto start = std::chrono::system_clock::now();
+        std::this_thread::sleep_for(100ms);
+        auto end = std::chrono::system_clock::now();
+
+        REQUIRE(end - start >= 100ms);
+    }
 }
