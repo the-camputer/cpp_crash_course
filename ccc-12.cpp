@@ -9,6 +9,7 @@
 #include <cmath>
 #include <boost/math/constants/constants.hpp>
 #include <random>
+#include <ratio>
 
 /*
     tribool: can be either true, false, or indeterminate. Good for checking intermediate state of system.
@@ -215,4 +216,16 @@ TEST_CASE("Random Number Generation Engines") {
 
         REQUIRE_NOTHROW(rd_engine());
     }
+}
+
+/*
+    Compile-Time Rational Arithmetic: <ratio> header provides methods for computional rational numbers at compile time 
+*/
+TEST_CASE("std::ratio") {
+    using ten = std::ratio<10, 1>;
+    using two_thirds = std::ratio<2, 3>;
+    using result = std::ratio_multiply<ten, two_thirds>;
+
+    REQUIRE(result::num == 20);
+    REQUIRE(result::den == 3);
 }
