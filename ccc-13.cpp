@@ -6,6 +6,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include <array>
+#include <vector>
 
 /*
     Arrays: RAII wrapper around statically-sized arrays.
@@ -87,5 +88,57 @@ TEST_CASE("std::array") {
 }
 
 /*
-    Vector: dynamically sized sequential containers
+    Vector: dynamically sized sequential containers. Is the workhorse of sequential data structures.
+    Contains almost all of the same operations as arrays with greater flexibility.
 */
+TEST_CASE("std::vector") {
+    SECTION("vector support empty initialization") {
+        std::vector<const char*> vec;
+        REQUIRE(vec.empty());
+    }
+
+    SECTION("vector supports braced initialization") {
+        std::vector<int> fib { 1, 1, 2, 3, 5 };
+        REQUIRE(fib.size() == 5);
+    }
+
+    SECTION("vector has fill constructor for repetetive numbers") {
+        std::vector<int> five_nine { 5, 9 }; // curly braces
+        std::vector<int> five_nines( 5, 9 ); // parentheses
+    
+        REQUIRE(five_nine[0] == 5);
+        REQUIRE(five_nines[4] == 9);
+    }
+
+    SECTION("vector supports construction from iterators") {
+        std::array<int, 5> arr_nums { 1, 1, 2, 3, 5 };
+        std::vector<int> vec_nums(arr_nums.begin(), arr_nums.end());
+
+        REQUIRE(vec_nums.size() == arr_nums.size());
+        REQUIRE(vec_nums[4] == arr_nums[4]);
+    }
+
+    SECTION("std::vector assign replaces existing elements") {
+        std::vector<int> message{ 13, 80, 110, 114, 102, 110, 101 };
+        REQUIRE(message.size() == 7);
+        message.assign({ 67, 97, 101, 115, 97, 114 });
+        REQUIRE(message[5] == 114);
+        REQUIRE(message.size() == 6);
+    }
+
+    SECTION("vector insert places new elements") {
+        std::vector<int> zeroes(3, 0);
+        auto second_element = zeroes.begin() + 1;
+        zeroes.insert(second_element, 10);
+        REQUIRE(zeroes[1] == 10);
+        REQUIRE(zeroes.size() == 4);
+    }
+
+    SECTION("vector push_back places new elements at end") {
+        std::vector<int> zeroes(3, 0);
+        zeroes.push_back(10);
+
+        REQUIRE(zeroes.size() == 4);
+        REQUIRE(zeroes[3] == 10);
+    }
+}
