@@ -7,6 +7,7 @@
 #include "catch.hpp"
 #include <array>
 #include <vector>
+#include <stack>
 
 /*
     Arrays: RAII wrapper around statically-sized arrays.
@@ -140,5 +141,28 @@ TEST_CASE("std::vector") {
 
         REQUIRE(zeroes.size() == 4);
         REQUIRE(zeroes[3] == 10);
+    }
+}
+
+/*
+    Container Adapters: wrappers around other STL containers that provides additional functionality or conforms
+    the containers to specific definitions, i.e. stack, queue, and heap
+*/
+TEST_CASE("std::stack") {
+    /*
+        stack templates have two parameters: the type, and the type of underlying structure. The second is optional,
+        and defaults to deque unless you specify vector
+    */
+    SECTION("stack supports push/pop/top operations") {
+        std::vector<int> vec { 1, 3 };
+        std::stack<int, decltype(vec)> easy_as(vec);
+        REQUIRE(easy_as.top() == 3);
+        easy_as.pop();
+        easy_as.push(2);
+        REQUIRE(easy_as.top() == 2);
+        easy_as.pop();
+        REQUIRE(easy_as.top() == 1);
+        easy_as.pop();
+        REQUIRE(easy_as.empty());
     }
 }
