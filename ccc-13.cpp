@@ -190,3 +190,28 @@ TEST_CASE("std::queue supports push/pop/front/back") {
     REQUIRE(easy_as.empty());
 }
 
+/*
+    Prioritiy Queues (Heaps): keeps elements based on a pre-defined comparator (returns true when first element is less than second).
+    Priority queue template defines 3 parameters:
+        - type of underlying object (required)
+        - type of container (optional: defaults to vector)
+        - comparator function (optional: defaults to std::less)
+    Priority Queues have the same interface as stacks, but pops highest priority instead of FILO-based
+*/
+TEST_CASE("std::priority_queue supports push/pop") {
+    std::priority_queue<double> priqueue;
+    priqueue.push(1.0);
+    priqueue.push(2.0);
+    priqueue.push(1.5);
+
+    REQUIRE(priqueue.top() == Approx(2.0));
+    priqueue.pop();
+    priqueue.push(1.0);
+    REQUIRE(priqueue.top() == Approx(1.5));
+    priqueue.pop();
+    REQUIRE(priqueue.top() == Approx(1.0));
+    priqueue.pop();
+    REQUIRE(priqueue.top() == Approx(1.0));
+    priqueue.pop();
+    REQUIRE(priqueue.empty());
+}
