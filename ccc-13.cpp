@@ -9,6 +9,7 @@
 #include <vector>
 #include <stack>
 #include <queue>
+#include <map>
 
 /*
     Arrays: RAII wrapper around statically-sized arrays.
@@ -214,4 +215,56 @@ TEST_CASE("std::priority_queue supports push/pop") {
     REQUIRE(priqueue.top() == Approx(1.0));
     priqueue.pop();
     REQUIRE(priqueue.empty());
+}
+
+/*
+    Map: STL container that maps keys to values.
+    Template parameters are:
+        - Key type (required)
+        - Value type (required)
+        - comparator (optional: defaults to std::less)
+        - allocator (optional: defaults to std::allocator)
+*/
+auto color_of_magic = "Color of Magic";
+auto the_light_fantastic = "The Light Fantastic";
+auto equal_rites = "Equal Rites";
+auto mort = "Mort";
+TEST_CASE("std::map") {
+    SECTION("supports") {
+        SECTION("Default construction") {
+            std::map<const char*, int> emp;
+            REQUIRE(emp.empty());
+        }
+        SECTION("braced initialization") {
+            std::map<const char*, int> pub_year {
+                { color_of_magic, 1983 },
+                { the_light_fantastic, 1986 },
+                { equal_rites, 1987 },
+                { mort, 1987 }
+            };
+            REQUIRE(pub_year.size() == 4);
+        }
+        SECTION("is an associative array with") {
+            std::map<const char*, int> pub_year {
+                { color_of_magic, 1983 },
+                { the_light_fantastic, 1986 }
+            };
+
+            SECTION("operator[]") {
+                REQUIRE(pub_year[color_of_magic] == 1983);
+
+                pub_year[equal_rites] = 1987;
+                REQUIRE(pub_year[equal_rites] == 1987);
+
+                REQUIRE(pub_year[mort] == 0);
+            }
+
+            SECTION("an at method") {
+                REQUIRE(pub_year.at(color_of_magic) == 1983);
+
+                pub_year.erase(color_of_magic);
+                REQUIRE_THROWS_AS(pub_year.at(color_of_magic), std::out_of_range);
+            }
+        }
+    }
 }
