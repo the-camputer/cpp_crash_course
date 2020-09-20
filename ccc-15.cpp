@@ -13,6 +13,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include <string>
+#include <regex>
 
 TEST_CASE("std::string") {
     SECTION("supports constructing") {
@@ -154,4 +155,49 @@ TEST_CASE("STL String Conversion") {
     SECTION("stod") {
         REQUIRE(std::stod("2.7182818"s) == Approx(2.7182818));
     }
-} 
+}
+
+/*
+    Regex Algorithms: <regex> header provides three algorithms for applying std::basic_regex to a target string
+        - matching: attempts to marry a regular expression to the entirity of a string
+        - searching: attempts to match a regular expression to part of a string
+        - replacing: substitutes regular expression occurrences with replacement text
+*/
+
+TEST_CASE("regex") {
+    std::regex zip_regex{ R"((\w{2})?(\d{5})(-\d{4})?)" }; // String literals (R"") removes need for escaping the escape characters
+    SECTION("std::basic_regex constructs from a string literal") {
+        REQUIRE(zip_regex.mark_count() == 3); // mark_count -> returns number of groups in the pattern
+    }
+
+    SECTION("regex_match") {
+        std::smatch results;
+        SECTION("returns true given matching string") {
+            std::string zip("OH43206-0001");
+            const auto matched = std::regex_match(zip, results, zip_regex);
+            REQUIRE(matched);
+            REQUIRE(results[0] == "OH43206-0001");
+            REQUIRE(results[1] == "OH");
+            REQUIRE(results[2] == "43206");
+            REQUIRE(results[3] == "-0001");
+        }
+        SECTION("returns true when string does not match") {
+            std::string fake_zip("Columbus OH South Side");
+            const auto matched = std::regex_match(fake_zip, results, zip_regex);
+            REQUIRE_FALSE(matched);
+        }
+    }
+
+    SECTION("regex_search returns true when even part of a string matches") {
+        std::string sentence("I live in zip code 43206-0001");
+        REQUIRE_FALSE(std::regex_match(sentence, zip_regex));
+        REQUIRE(std::regex_search(sentence, zip_regex));
+    }
+
+    SECTION("regex_replace replaces matched instances in a string") {
+        std::regex vowels { "[aeiou]" };
+        std::string sentence("queueing and cooeeing in eutopia");
+        const auto result = std::regex_replace(sentence, vowels, "_");
+        REQUIRE(result == "q_____ng _nd c_____ng _n __t_p__");
+    }
+}
