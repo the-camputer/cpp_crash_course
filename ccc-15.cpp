@@ -106,4 +106,21 @@ TEST_CASE("std::string") {
             REQUIRE(word.substr(3, 3) == "bit");
         }
     }
+
+    using namespace std::literals::string_literals;
+    SECTION("find") {
+        std::string word("pizzazz");
+        SECTION("locates substrings from strings") {
+            REQUIRE(word.find("zz"s) == 2); // pi(z)zazz
+        }
+        SECTION("accepts a position argument") {
+            REQUIRE(word.find("zz"s, 3) == 5); //pizza(z)z
+        }
+        SECTION("locates substring from char*") {
+            REQUIRE(word.find("zaz") == 3); // piz(z)azz
+        }
+        SECTION("returns npos when not found") {
+            REQUIRE(word.find("x") == std::string::npos);
+        }
+    }
 }
