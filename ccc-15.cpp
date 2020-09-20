@@ -124,3 +124,34 @@ TEST_CASE("std::string") {
         }
     }
 }
+
+TEST_CASE("STL String Conversion") {
+    using namespace std::literals::string_literals;
+    SECTION("to_string") {
+        REQUIRE("542345"s == std::to_string(542345));
+    }
+    SECTION("to_wstring") {
+        REQUIRE(L"12360359.584086"s == std::to_wstring(12360359.584086));
+    }
+    SECTION("stoi") {
+        REQUIRE(std::stoi("8675309"s) == 8675309);
+    }
+    SECTION("stoi") {
+        REQUIRE_THROWS_AS(std::stoi("1099511627776"s), std::out_of_range);
+    }
+    SECTION("stoul with all valid characters") {
+        size_t last_character{};
+        const auto result = std::stoul("0xD3C34C3D"s, &last_character, 16);
+        REQUIRE(result == 0xD3C34C3D);
+        REQUIRE(last_character == 10);
+    }
+    SECTION("stoul") {
+        size_t last_character{};
+        const auto result = std::stoul("42six"s, &last_character);
+        REQUIRE(result == 42);
+        REQUIRE(last_character == 2);
+    }
+    SECTION("stod") {
+        REQUIRE(std::stod("2.7182818"s) == Approx(2.7182818));
+    }
+} 
