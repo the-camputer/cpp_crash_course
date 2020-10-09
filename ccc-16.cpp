@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <fstream>
 #include <bitset>
 
 /*
@@ -71,13 +73,15 @@ int main() {
     }
     std::cout << "Discovered " << count << " words.\n";
 
+    cin.clear(); // clears buffer of any remaining input before taking in more.
+
     // you can use exceptions() method to have a stream throw an error when a certain bit state is achieved
     cin.exceptions(istream::badbit);
-    string word;
-    size_t count{};
+    string word2;
+    size_t count2{};
     try {
-        while(cin >> word) {
-            count++;
+        while(cin >> word2) {
+            count2++;
         }
         
     } catch (const std::exception& e) {
@@ -96,6 +100,47 @@ int main() {
         Rule of thumb: use endl when you know you won't be writing any text out for a while, otherwise send '\n'
     */
 
-    cout << "Discovered " << count << " words." << endl;
-}
+    cout << "Discovered " << count2 << " words." << endl;
 
+    /*
+        String Streams: Basically string builders
+    */
+   std::ostringstream ss;
+   ss << "By Grabathar's hammer, ";
+   ss << "by the suns of Worvan, ";
+   ss << "you shall be avenged.";
+
+   cout << ss.str() << endl;
+
+   /*
+        File Streams: Provide RAII-wrapped facilities for reading and writing files
+        Open Mode Exmamples:
+            - std::ios::in - Read in file (must exist)
+            - std::ios::out - Erase file then write (created if doesn't exist)
+            - std::ios::app - Append to file (must exist)
+            - in|out - Read and write from beginning of file (must exist)
+            - in|app - Update at end (created if doesn't exist)
+            - out|app - Append to file (created if doesn't exist)
+
+        File streams fail silently, just like other streams. Can use the is_open() method
+            to determine if a file successfully opened.
+        Files use a buffer under the covers. The rdbuf() method can be used to dump the contents of
+            of the file buffer to stdout.
+   */
+  std::ofstream numbers_out_file { "numbers.txt", std::ios::out|std::ios::app };
+  numbers_out_file << -54 << endl;
+  numbers_out_file << 203 << endl;
+  numbers_out_file << 9000 << endl;
+  numbers_out_file << 2345 << endl;
+
+  numbers_out_file.close();
+
+  std::ifstream numbers_in_file { "numbers.txt" };
+  auto max_num = numeric_limits<int>::min();
+  int value;
+  while (numbers_in_file >> value) {
+      max_num = max_num < value ? value : max_num;
+  }
+
+  cout << "Max number in file is " << max_num << endl;
+}
